@@ -25,10 +25,12 @@ int16_t *wavRead_int16(char *filename, uint32_t *sampleRate, uint32_t *channels,
         if (buffer != NULL) {
             *channels = pConfig.channels;
             *sampleRate = pConfig.sampleRate;
-            *totalSampleCount *= pConfig.channels;
+            *totalSampleCount *= *channels;
         } else {
             printf("read file [%s] error.\n", filename);
         }
+    } else {
+        *totalSampleCount *= *channels;
     }
     return buffer;
 }
