@@ -18,17 +18,14 @@ void error(char *s);
 
 
 int16_t *wavRead_int16(char *filename, uint32_t *sampleRate, uint32_t *channels, uint64_t *totalSampleCount) {
-    int16_t *buffer = drwav_open_and_read_file_s16(filename, channels, sampleRate, totalSampleCount);
+    int16_t *buffer = drwav_open_file_and_read_pcm_frames_s16(filename, channels, sampleRate, totalSampleCount, NULL);
     if (buffer == NULL) {
         drmp3_config pConfig;
-        float *mp3_buffer = drmp3_open_and_decode_file_f32(filename, &pConfig, totalSampleCount);
-        if (mp3_buffer != NULL) {
-            buffer = (int16_t *) calloc(*totalSampleCount, sizeof(int16_t));
-            *channels = pConfig.outputChannels;
-            *sampleRate = pConfig.outputSampleRate;
-            if (buffer != NULL)
-                drwav_f32_to_s16(buffer, mp3_buffer, *totalSampleCount);
-            free(mp3_buffer);
+        buffer = drmp3_open_file_and_read_pcm_frames_s16(filename, &pConfig, totalSampleCount, NULL);
+        if (buffer != NULL) {
+            *channels = pConfig.channels;
+            *sampleRate = pConfig.sampleRate;
+            *totalSampleCount *= pConfig.channels;
         } else {
             printf("read file [%s] error.\n", filename);
         }
